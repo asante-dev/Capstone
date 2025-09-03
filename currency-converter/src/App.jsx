@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AmountInput from "./components/AmountInput";
 import CurrencySelector from "./components/CurrencySelector";
 import ConvertButton from "./components/ConvertButton";
-import CurrencySelector from "./components/CurrencySelector";
 import ConversionResult from "./components/ConversionResult";
 
 export default function App() {
@@ -13,13 +12,20 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const key = import.meta.env.VITE_EXCHANGE_API_KEY;
+
   useEffect(() => {
-    fetch("https://api.exchangerate.host/symbols")
+    fetch(`https://v6.exchangerate-api.com/v6/${key}/latest/USD`)
       .then((res) => res.json())
       .then((data) => {
-        setCurrencies(Object.keys(data.symbols));
-      });
-  }, []);
+        if (data && data.conversion_rates) {
+          setCurrencies(Object.keys(data.conversion_rates));
+        } else {
+          console.error("Failed to load currencies:", data);
+        }
+      })
+      .catch((err) => console.error("Error fetching currencies:", err));
+  }, [key]);
 
   const handleConvert = async () => {
     setLoading(true);
@@ -27,12 +33,16 @@ export default function App() {
 
     try {
       const res = await fetch(
-        `https://api.exchangerate.host/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`
+        `https://v6.exchangerate-api.com/v6/${key}/pair/${fromCurrency}/${toCurrency}/${amount}`
       );
       const data = await res.json();
-      setResult(data.result);
+      if (data && data.conversion_result) {
+        setResult(data.conversion_result);
+      } else {
+        console.error("Conversion failed:", data);
+      }
     } catch (err) {
-      console.error("Conversion failed:", err);
+      console.error("Conversion error:", err);
     } finally {
       setLoading(false);
     }
