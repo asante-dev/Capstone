@@ -52,7 +52,7 @@ export default function App() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 p-6">
       <div className="bg-white shadow-xl rounded-2xl p-6 max-w-md w-full space-y-4">
         <h1 className="text-2xl font-bold text-center text-blue-600">
-          Currency Converter
+          CHA$E Currency Converter
         </h1>
 
         <AmountInput amount={amount} setAmount={setAmount} />
